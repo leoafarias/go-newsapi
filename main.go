@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -15,20 +14,15 @@ import (
 const (
 	libraryVersion = "0.1"
 	userAgent      = "go-newsapi/" + libraryVersion
-	apiURL         = "https://newsapi.org/v2"
+	apiURL         = "https://newsapi.org"
 	apikey         = ""
-)
-
-var (
-	// ErrUnauthorized can be returned on any call on response status code 401.
-	ErrUnauthorized = errors.New("newsapi: unauthorized")
 )
 
 // Client exports
 type Client struct {
 	BaseURL    *url.URL
 	APIKey     string
-	httpClient *http.Client
+	httpClient http.Client
 }
 
 type articles []*article
@@ -54,33 +48,56 @@ type source struct {
 }
 
 type articlesResponse struct {
-	Status       string
-	TotalResults int
+	Status       string `json:"status"`
+	Code         string `json:"code"`
+	Message      string `json:"message"`
+	TotalResults int    `json:"totalResults"`
 	Articles     []article
 }
 
 type sourcesResponse struct {
-	Status       string
-	TotalResults int
+	Status       string `json:"status"`
+	Code         string `json:"code"`
+	Message      string `json:"message"`
+	TotalResults int    `json:"totalResults"`
 	Sources      []source
 }
 
 type params map[string]string
 
-func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
+const (
+	statusOK    = "ok"
+	statusError = "error"
+)
+
+// NewClient - Instantiates a new Client Struct
+func NewClient(key string) (*Client, error) {
 
 	url, err := url.Parse(apiURL)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+
+	client := &Client{
+		APIKey:  key,
+		BaseURL: url,
+	}
+
+	return client, nil
+}
+
+func (c *Client) newRequest(method, path string, p params, body interface{}) (*http.Request, error) {
+
 	rel, err := url.Parse(path)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 
-	fmt.Printf("%v\n", rel)
 	u := c.BaseURL.ResolveReference(rel)
+
 	var buf io.ReadWriter
+
 	if body != nil {
 		buf = new(bytes.Buffer)
 		err := json.NewEncoder(buf).Encode(body)
@@ -88,55 +105,44 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 			return nil, err
 		}
 	}
+
 	req, err := http.NewRequest(method, u.String(), buf)
+
 	if err != nil {
 		return nil, err
 	}
+
+	q := req.URL.Query()
+
+	for k, v := range p {
+		q.Add(k, v)
+	}
+
+	req.URL.RawQuery = q.Encode()
+
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
+
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", userAgent)
-	req.Header.Set("X-Api-Key", apikey)
+	req.Header.Set("X-Api-Key", c.APIKey)
 	return req, nil
 }
 
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	fmt.Printf("%v\n", resp.StatusCode)
 	err = json.NewDecoder(resp.Body).Decode(v)
 	return resp, err
 }
 
 func (c *Client) topHeadlines(p params) (articlesResponse, error) {
-	v := url.Values{}
-	fmt.Printf("%v\n", v)
-	// for k, v := range p {
-
-	// }
-
-	req, err := c.newRequest("GET", "/top-headlines", nil)
-	var res articlesResponse
-	if err != nil {
-		return res, err
-	}
-	_, err = c.do(req, &res)
-	return res, nil
 }
 func (c *Client) everything() {}
 func (c *Client) sources()    {}
-
-func main() {
-
-	client := &Client{
-		APIKey: apikey,
-	}
-
-	params := make(map[string]string)
-	params["country"] = "us"
-	res, _ := client.topHeadlines(params)
-	fmt.Printf("%v\n", res)
-}
