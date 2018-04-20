@@ -143,6 +143,31 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 }
 
 func (c *Client) topHeadlines(p params) (articlesResponse, error) {
+
+	req, err := c.newRequest("GET", "/v2/top-headlines", p, nil)
+
+	var res articlesResponse
+	if err != nil {
+		return res, err
+	}
+	_, err = c.do(req, &res)
+	if err != nil {
+
+	}
+	return res, nil
 }
 func (c *Client) everything() {}
 func (c *Client) sources()    {}
+
+func main() {
+	c, _ := NewClient(apikey)
+	params := make(map[string]string)
+	// params["country"] = "us"
+	res, err := c.topHeadlines(params)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%v\n", res)
+}
