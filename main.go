@@ -156,8 +156,34 @@ func (c *Client) topHeadlines(p params) (articlesResponse, error) {
 	}
 	return res, nil
 }
-func (c *Client) everything() {}
-func (c *Client) sources()    {}
+
+func (c *Client) everything(p params) (articlesResponse, error) {
+	req, err := c.newRequest("GET", "/v2/everything", p, nil)
+
+	var res articlesResponse
+	if err != nil {
+		return res, err
+	}
+	_, err = c.do(req, &res)
+	if err != nil {
+
+	}
+	return res, nil
+}
+
+func (c *Client) sources(p params) (sourcesResponse, error) {
+	req, err := c.newRequest("GET", "/v2/sources", p, nil)
+
+	var res sourcesResponse
+	if err != nil {
+		return res, err
+	}
+	_, err = c.do(req, &res)
+	if err != nil {
+
+	}
+	return res, nil
+}
 
 func main() {
 	c, _ := NewClient(apikey)
