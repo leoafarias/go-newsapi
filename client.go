@@ -1,4 +1,4 @@
-package main
+package newsapi
 
 import (
 	"bytes"
@@ -8,14 +8,12 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 const (
 	libraryVersion = "0.1"
 	userAgent      = "go-newsapi/" + libraryVersion
 	apiURL         = "https://newsapi.org"
-	apikey         = ""
 )
 
 // Client exports
@@ -24,46 +22,6 @@ type Client struct {
 	APIKey     string
 	httpClient http.Client
 }
-
-type articles []*article
-
-type article struct {
-	Source      source    `json:"source"`
-	Author      string    `json:"author"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	URL         string    `json:"url"`
-	URLToImage  string    `json:"urlToImage"`
-	PublishedAt time.Time `json:"publishedAt"`
-}
-
-type source struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	URL         string `json:"url,omitempty"`
-	Category    string `json:"category,omitempty"`
-	Language    string `json:"language,omitempty"`
-	Country     string `json:"country,omitempty"`
-}
-
-type articlesResponse struct {
-	Status       string `json:"status"`
-	Code         string `json:"code"`
-	Message      string `json:"message"`
-	TotalResults int    `json:"totalResults"`
-	Articles     []article
-}
-
-type sourcesResponse struct {
-	Status       string `json:"status"`
-	Code         string `json:"code"`
-	Message      string `json:"message"`
-	TotalResults int    `json:"totalResults"`
-	Sources      []source
-}
-
-type params map[string]string
 
 const (
 	statusOK    = "ok"
@@ -139,61 +97,68 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	defer resp.Body.Close()
 	fmt.Printf("%v\n", resp.StatusCode)
 	err = json.NewDecoder(resp.Body).Decode(v)
+
 	return resp, err
 }
 
-func (c *Client) topHeadlines(p params) (articlesResponse, error) {
+// TopHeadlines is great for retrieving headlines for display on news tickers or similar
+func (c *Client) TopHeadlines(p params) (ArticlesResponse, error) {
 
 	req, err := c.newRequest("GET", "/v2/top-headlines", p, nil)
 
-	var res articlesResponse
+	var res ArticlesResponse
 	if err != nil {
 		return res, err
 	}
+
 	_, err = c.do(req, &res)
 	if err != nil {
-
+		return res, err
 	}
+
+	if res.Status == statusError {
+		return res, &apiError{res.Code, res.Message}
+	}
+
 	return res, nil
 }
 
-func (c *Client) everything(p params) (articlesResponse, error) {
+// Everything endpoint suits article discovery and analysis, but can be used to retrieve articles for display, too.
+func (c *Client) Everything(p params) (ArticlesResponse, error) {
 	req, err := c.newRequest("GET", "/v2/everything", p, nil)
 
-	var res articlesResponse
+	var res ArticlesResponse
 	if err != nil {
 		return res, err
 	}
 	_, err = c.do(req, &res)
 	if err != nil {
-
+		return res, err
 	}
+
+	if res.Status == statusError {
+		return res, &apiError{res.Code, res.Message}
+	}
+
 	return res, nil
 }
 
-func (c *Client) sources(p params) (sourcesResponse, error) {
+// Sources returns the subset of news publishers that top headlines
+func (c *Client) Sources(p params) (SourcesResponse, error) {
 	req, err := c.newRequest("GET", "/v2/sources", p, nil)
 
-	var res sourcesResponse
+	var res SourcesResponse
 	if err != nil {
 		return res, err
 	}
 	_, err = c.do(req, &res)
 	if err != nil {
-
+		return res, err
 	}
+
+	if res.Status == statusError {
+		return res, &apiError{res.Code, res.Message}
+	}
+
 	return res, nil
-}
-
-func main() {
-	c, _ := NewClient(apikey)
-	params := make(map[string]string)
-	// params["country"] = "us"
-	res, err := c.topHeadlines(params)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("%v\n", res)
 }
