@@ -57,7 +57,7 @@ func main() {
 ```
 
 ## To Do
-- [x ] Implement TopHeadlines
+- [x] Implement TopHeadlines
 - [x] Implement Everything
 - [x] Implement Source
 - [ ] Write tests

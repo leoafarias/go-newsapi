@@ -3,7 +3,6 @@ package newsapi
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -23,10 +22,7 @@ type Client struct {
 	httpClient http.Client
 }
 
-const (
-	statusOK    = "ok"
-	statusError = "error"
-)
+type params map[string]string
 
 // NewClient - Instantiates a new Client Struct
 func NewClient(key string) (*Client, error) {
@@ -95,7 +91,7 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	fmt.Printf("%v\n", resp.StatusCode)
+
 	err = json.NewDecoder(resp.Body).Decode(v)
 
 	return resp, err
@@ -116,7 +112,7 @@ func (c *Client) TopHeadlines(p params) (ArticlesResponse, error) {
 		return res, err
 	}
 
-	if res.Status == statusError {
+	if res.Status == "error" {
 		return res, &apiError{res.Code, res.Message}
 	}
 
@@ -136,7 +132,7 @@ func (c *Client) Everything(p params) (ArticlesResponse, error) {
 		return res, err
 	}
 
-	if res.Status == statusError {
+	if res.Status == "error" {
 		return res, &apiError{res.Code, res.Message}
 	}
 
@@ -156,7 +152,7 @@ func (c *Client) Sources(p params) (SourcesResponse, error) {
 		return res, err
 	}
 
-	if res.Status == statusError {
+	if res.Status == "error" {
 		return res, &apiError{res.Code, res.Message}
 	}
 

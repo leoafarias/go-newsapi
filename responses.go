@@ -2,8 +2,6 @@ package newsapi
 
 import "time"
 
-type articles []*article
-
 type article struct {
 	Source      source    `json:"source"`
 	Author      string    `json:"author"`
@@ -23,8 +21,6 @@ type source struct {
 	Language    string `json:"language,omitempty"`
 	Country     string `json:"country,omitempty"`
 }
-
-type params map[string]string
 
 // ArticlesResponse is a response expected on endpoint that return articles
 type ArticlesResponse struct {
