@@ -1,6 +1,6 @@
 # NewsAPI Go Client
 [![Go Report Card](https://goreportcard.com/badge/github.com/leoafarias/go-newsapi)](https://goreportcard.com/report/github.com/leoafarias/go-newsapi) [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
-[![stability-unstable](https://img.shields.io/badge/stability-unstable-red.svg)](https://github.com/emersion/stability-badges#unstable) 
+[![stability-unstable](https://img.shields.io/badge/stability-stable-green.svg)](https://github.com/emersion/stability-badges#unstable) 
 [![Maintainability](https://api.codeclimate.com/v1/badges/1603870f2a43c27639e6/maintainability)](https://codeclimate.com/github/leoafarias/go-newsapi/maintainability)
 
 
@@ -17,9 +17,9 @@ $ go get github.com/leoafarias/go-newsapi
 
 This library is a GO client you can use to interact with the [NewsAPI v2](https://newsapi.org/docs). Here are some examples
 
-* TopHeadlines()
-* Everything()
-* Sources()
+* TopHeadlines
+* Everything
+* Sources
 
 
 ```go
@@ -41,12 +41,13 @@ func main() {
     params := make(map[string]string)
 
     params["country"] = "us"
-    params["category"] = "business"
+    params["category"] = "technology"
 
     res, err := c.TopHeadlines(params)
 
     if err != nil {
         log.Fatal(err)
+        os.Exit(1)
     }
 
     for _, a := range res.Articles {
@@ -60,5 +61,5 @@ func main() {
 - [x] Implement TopHeadlines
 - [x] Implement Everything
 - [x] Implement Source
-- [ ] Write tests
+- [x] Write tests
 - [ ] Implement Cancelable requests
