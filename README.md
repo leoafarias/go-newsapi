@@ -17,9 +17,7 @@ $ go get github.com/leoafarias/go-newsapi
 
 This library is a GO client you can use to interact with the [NewsAPI v2](https://newsapi.org/docs). Here are some examples
 
-* TopHeadlines
-* Everything
-* Sources
+### TopHeadlines
 
 
 ```go
@@ -51,6 +49,82 @@ func main() {
     }
 
     for _, a := range res.Articles {
+        fmt.Println(a)
+    }
+
+}
+```
+
+### Everything
+
+
+```go
+package main
+
+import (
+    "fmt"
+    "log"
+
+    "github.com/leoafarias/go-newsapi"
+)
+
+const apikey = "API_KEY"
+
+func main() {
+
+    c, _ := newsapi.NewClient(apikey)
+
+    params := make(map[string]string)
+
+    params["q"] = "(ethereum OR litecoin OR bitcoin)"
+    params["domains"] = "bbc.co.uk, techcrunch.com, engadget.com"
+    params["pageSize"] = "10"
+
+    res, err := c.Everything(params)
+
+    if err != nil {
+        log.Fatal(err)
+        os.Exit(1)
+    }
+
+    for _, a := range res.Articles {
+        fmt.Println(a)
+    }
+
+}
+```
+
+### Sources
+
+
+```go
+package main
+
+import (
+    "fmt"
+    "log"
+
+    "github.com/leoafarias/go-newsapi"
+)
+
+const apikey = "API_KEY"
+
+func main() {
+
+    c, _ := newsapi.NewClient(apikey)
+
+    params := make(map[string]string)
+
+    params["category"] = "technology"
+
+    res, err := c.Sources(params)
+
+    if err != nil {
+        log.Fatal(err)
+        os.Exit(1)
+    }
+
+    for _, a := range res.Sources {
         fmt.Println(a)
     }
 
