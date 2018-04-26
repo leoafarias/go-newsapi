@@ -18,6 +18,7 @@ $ go get github.com/leoafarias/go-newsapi
 This library is a GO client you can use to interact with the [NewsAPI v2](https://newsapi.org/docs). Here are some examples
 
 ### TopHeadlines
+This method provides live top and breaking headlines for a country, specific category in a country, single source, or multiple sources. You can also search with keywords. Articles are sorted by the earliest date published first.
 
 
 ```go
@@ -57,6 +58,8 @@ func main() {
 
 ### Everything
 
+Search through millions of articles from over 30,000 large and small news sources and blogs. This includes breaking news as well as lesser articles.
+
 
 ```go
 package main
@@ -95,6 +98,8 @@ func main() {
 ```
 
 ### Sources
+
+This method returns the subset of news publishers that top headlines (TopHeadlines) are available from. It's mainly a convenience endpoint that you can use to keep track of the publishers available on the API, and you can pipe it straight through to your users.
 
 
 ```go
