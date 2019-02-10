@@ -10,14 +10,14 @@ import (
 )
 
 const (
-	libraryVersion = "0.1"
+	libraryVersion = "0.2"
 	userAgent      = "go-newsapi/" + libraryVersion
 	apiURL         = "https://newsapi.org"
 )
 
 // Client exports
 type Client struct {
-	BaseURL    *url.URL
+	BaseURL    url.URL
 	APIKey     string
 	httpClient http.Client
 }
@@ -32,12 +32,12 @@ func NewClient(key string) (*Client, error) {
 		return nil, err
 	}
 
-	client := &Client{
+	client := Client{
 		APIKey:  key,
 		BaseURL: url,
 	}
 
-	return client, nil
+	return &client, nil
 }
 
 func (c *Client) newRequest(method, path string, p params, body interface{}) (*http.Request, error) {
